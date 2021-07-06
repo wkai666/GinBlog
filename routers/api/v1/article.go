@@ -18,7 +18,6 @@ func GetArticle(c *gin.Context) {
 	valid := validation.Validation{}
 	valid.Min(id, 1, "id").Message("")
 
-
 	code := e.INVALID_PARAMS
 	var data interface {}
 	if ! valid.HasErrors() {
