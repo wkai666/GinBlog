@@ -3,12 +3,12 @@ package v1
 import (
 	"ginApp/models"
 	"ginApp/pkg/e"
+	"ginApp/pkg/logging"
 	"ginApp/pkg/setting"
 	"ginApp/pkg/util"
 	"github.com/astaxie/beego/validation"
 	"github.com/gin-gonic/gin"
 	"github.com/unknwon/com"
-	"log"
 	"net/http"
 )
 
@@ -16,7 +16,7 @@ func GetArticle(c *gin.Context) {
 	id := com.StrTo(c.Param("id")).MustInt()
 
 	valid := validation.Validation{}
-	valid.Min(id, 1, "id").Message("")
+	valid.Min(id, 1, "id").Message("标签必须大于 0")
 
 	code := e.INVALID_PARAMS
 	var data interface {}
@@ -29,7 +29,7 @@ func GetArticle(c *gin.Context) {
 		}
 	} else {
 		for _, err := range valid.Errors {
-			log.Printf("err.key: %s, err message: %s", err.Key, err.Message)
+			logging.Info(err.Key, err.Message)
 		}
 	}
 
@@ -70,7 +70,7 @@ func GetArticles(c *gin.Context) {
 		data["total"] = models.GetArticleTotal(maps)
 	} else {
 		for _, err := range valid.Errors {
-			log.Printf("err.key %s, err message %s", err.Key, err.Message)
+			logging.Info(err.Key, err.Message)
 		}
 	}
 
@@ -115,7 +115,7 @@ func AddArticle(c *gin.Context) {
 		}
 	} else {
 		for _, err := range valid.Errors {
-			log.Printf("err key %s, err message %s", err.Key, err.Message)
+			logging.Info(err.Key, err.Message)
 		}
 	}
 
@@ -177,7 +177,7 @@ func EditArticle(c *gin.Context) {
 		}
 	} else {
 		for _, err := range valid.Errors {
-			log.Printf("err key: %s, err message: %s ", err.Key, err.Message)
+			logging.Info(err.Key, err.Message)
 		}
 	}
 
@@ -204,7 +204,7 @@ func DeleteArticle(c *gin.Context) {
 		}
 	} else {
 		for _, err := range valid.Errors {
-			log.Printf("err key: %s, err message: %s ", err.Key, err.Message)
+			logging.Info(err.Key, err.Message)
 		}
 	}
 
