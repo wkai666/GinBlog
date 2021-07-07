@@ -1,14 +1,26 @@
 package routers
 
 import (
+	_ "ginApp/docs"
 	"ginApp/middleware/jwt"
 	"ginApp/pkg/setting"
 	"ginApp/routers/api"
 	v1 "ginApp/routers/api/v1"
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func InitRouter() *gin.Engine {
+
+	// programmatically set swagger info
+	// docs.SwaggerInfo.Title = "Swagger Example API"
+	// docs.SwaggerInfo.Description = "This is a sample server Petstore server."
+	// docs.SwaggerInfo.Version = "1.0"
+	// docs.SwaggerInfo.Host = "127.0.0.1:9099"
+	// docs.SwaggerInfo.BasePath = "/v2"
+	// docs.SwaggerInfo.Schemes = []string{"http", "https"}
+
 	r := gin.New()
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
@@ -16,6 +28,9 @@ func InitRouter() *gin.Engine {
 	gin.SetMode(setting.RunMode)
 
 	r.GET("/auth", api.GetAuth)
+
+	url := ginSwagger.URL("http://127.0.0.1:9099/swagger/doc.json") // The url pointing to API definition
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, url))
 
 	apiv1 := r.Group("/api/v1")
 	apiv1.Use(jwt.JWT())
