@@ -2,10 +2,10 @@ package models
 
 import (
 	"fmt"
-	setting2 "ginApp/pkg/setting"
+	"ginApp/pkg/logging"
+	"ginApp/pkg/setting"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
-	"log"
 )
 
 var db *gorm.DB
@@ -22,9 +22,9 @@ func init() {
 		dbType, dbName, user, passwd, host, tablePrefix string
 	)
 
-	sec, err := setting2.Cfg.GetSection("database")
+	sec, err := setting.Cfg.GetSection("database")
 	if err != nil {
-		log.Fatal(2, "failed to get section 'database' %v", err)
+		logging.Fatal(err)
 	}
 
 	dbType = sec.Key("TYPE").String()
@@ -39,7 +39,7 @@ func init() {
 		fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8&parseTime=True&loc=Local",
 			user, passwd, host, dbName))
 	if err != nil {
-		log.Println(err)
+		logging.Error(err)
 	}
 
 	gorm.DefaultTableNameHandler = func (db *gorm.DB, defaultTableName string) string {

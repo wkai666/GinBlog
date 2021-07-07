@@ -10,6 +10,11 @@ var (
 	Cfg *ini.File
 
 	RunMode string
+	LogSavePath string
+	LogSaveName string
+	LogFileExt string
+	TimeFormat string
+
 	HTTPPort int
 	ReadTimeout time.Duration
 	WriteTimeout time.Duration
@@ -28,6 +33,7 @@ func init() {
 	LoadBase()
 	LoadServer()
 	LoadApp()
+	LoadLog()
 }
 
 func LoadBase() {
@@ -53,4 +59,16 @@ func LoadApp() {
 
 	JwtSecret = sec.Key("JWT_SECRET").MustString("!@)*#)!@U#@*!@!)")
 	PageSize = sec.Key("PAGE_SIZE").MustInt(10)
+}
+
+func LoadLog() {
+	sec, err := Cfg.GetSection("log")
+	if err != nil {
+		log.Fatalf("Failed get to section 'log' %v:", err)
+	}
+
+	LogSavePath = sec.Key("LOG_SAVE_PATH").MustString("runtime/logs/")
+	LogSaveName = sec.Key("LOG_SAVE_NAME").MustString("ginBlog_")
+	LogFileExt  = sec.Key("LOG_FILE_EXT").MustString("log")
+	TimeFormat  = sec.Key("TIME_FORMAT").MustString("20060102")
 }
