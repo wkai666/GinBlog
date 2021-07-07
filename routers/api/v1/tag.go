@@ -40,7 +40,13 @@ func GetTags(c *gin.Context) {
 	})
 }
 
-// 新增文章标签
+// @Summary 新增文章标签
+// @Product json
+// @param name query string true "Name"
+// @param state query int false "State"
+// @param created_by query int false "CreatedBy"
+// @Success 200 {object} gin.H{}
+// @Router /api/v1/tags [post]
 func AddTag(c *gin.Context) {
 	name := c.Query("name")
 	state := com.StrTo(c.DefaultQuery("state", "0")).MustInt()
@@ -95,7 +101,14 @@ func DelTag(c *gin.Context) {
 	})
 }
 
-// 更新文章标签
+// @Summary 修改文章标签
+// @Produce json
+// @Param id path int true "ID"
+// @Param name query string true "name"
+// $Param state query int false "State"
+// @Param modified_by query string true "ModifiedBy"
+// @Success 200 {object} gin.H{}
+// @Router /api/v1/tags/{id} [put]
 func EditTag(c *gin.Context) {
 	id := com.StrTo(c.Param("id")).MustInt()
 	name := c.Query("name")
