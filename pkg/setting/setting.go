@@ -6,69 +6,77 @@ import (
 	"time"
 )
 
-var (
-	Cfg *ini.File
+type Server struct {
+	HttpPort int
+	ReadTimeOut time.Duration
+	WriteTimeOut time.Duration
+}
 
+type App struct {
 	RunMode string
+
+	JwtSecret string
+	PageSize int
+	RuntimeRootPath string
+
+	ImagePrefixUrl string
+	ImageSavePath string
+	ImageMaxSize int
+	ImageAllowExts []string
+}
+
+type Log struct {
 	LogSavePath string
 	LogSaveName string
 	LogFileExt string
 	TimeFormat string
+}
 
-	HTTPPort int
-	ReadTimeout time.Duration
-	WriteTimeout time.Duration
+type Database struct {
+	Type string
+	Host string
+	User string
+	Password string
+	DBName string
+	TablePrefix string
+}
 
-	PageSize int
-	JwtSecret string
+var (
+	ServerSetting   = &Server{}
+	AppSetting      = &App{}
+	LogSetting      = &Log{}
+	DatabaseSetting = &Database{}
 )
 
-func init() {
-	var err error
-	Cfg, err = ini.Load("conf/app.ini")
+func Setup() {
+	Cfg, err := ini.Load("conf/app.ini")
 	if err != nil {
-		log.Fatalf("Failed to parse 'conf/app.ini': %v ", err)
+		log.Fatalf("Failed to parse 'app.ini': %v", err)
 	}
 
-	LoadBase()
-	LoadServer()
-	LoadApp()
-	LoadLog()
-}
-
-func LoadBase() {
-	RunMode = Cfg.Section("").Key("RUN_MODE").MustString("debug")
-}
-
-func LoadServer() {
-	sec, err := Cfg.GetSection("server")
+	err = Cfg.Section("app").MapTo(AppSetting)
+	log.Println("appsetting is: ", AppSetting)
 	if err != nil {
-		log.Fatalf("Failed get to section 'server' :%v", err)
+		log.Fatalf("Cfg.MapTo AppSetting err: %v", err)
 	}
 
-	HTTPPort = sec.Key("HTTP_PORT").MustInt(9099)
-	ReadTimeout = time.Duration(sec.Key("READ_TIMEOUT").MustInt(60)) * time.Second
-	WriteTimeout = time.Duration(sec.Key("WRITE_TIMEOUT").MustInt(60)) * time.Second
-}
+	AppSetting.ImageMaxSize = AppSetting.ImageMaxSize * 1024 * 1024
 
-func LoadApp() {
-	sec, err := Cfg.GetSection("app")
+	err = Cfg.Section("server").MapTo(ServerSetting)
 	if err != nil {
-		log.Fatalf("failed to get section 'app':  %v", err)
+		log.Fatalf("Cfg.MapTo ServerSetting err: %v", err)
 	}
 
-	JwtSecret = sec.Key("JWT_SECRET").MustString("!@)*#)!@U#@*!@!)")
-	PageSize = sec.Key("PAGE_SIZE").MustInt(10)
-}
+	ServerSetting.ReadTimeOut = ServerSetting.ReadTimeOut * time.Second
+	ServerSetting.WriteTimeOut = ServerSetting.WriteTimeOut * time.Second
 
-func LoadLog() {
-	sec, err := Cfg.GetSection("log")
+	err = Cfg.Section("database").MapTo(DatabaseSetting)
 	if err != nil {
-		log.Fatalf("Failed get to section 'log' %v:", err)
+		log.Fatalf("Cfg.MapTo Database err: %v", err)
 	}
 
-	LogSavePath = sec.Key("LOG_SAVE_PATH").MustString("runtime/logs/")
-	LogSaveName = sec.Key("LOG_SAVE_NAME").MustString("ginBlog_")
-	LogFileExt  = sec.Key("LOG_FILE_EXT").MustString("log")
-	TimeFormat  = sec.Key("TIME_FORMAT").MustString("20060102")
+	err = Cfg.Section("log").MapTo(LogSetting)
+	if err != nil {
+		log.Fatalf("Cfg.MapTo Log err: %v", err)
+	}
 }

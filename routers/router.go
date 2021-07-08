@@ -4,11 +4,13 @@ import (
 	_ "ginApp/docs"
 	"ginApp/middleware/jwt"
 	"ginApp/pkg/setting"
+	"ginApp/pkg/upload"
 	"ginApp/routers/api"
 	v1 "ginApp/routers/api/v1"
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
+	"net/http"
 )
 
 func InitRouter() *gin.Engine {
@@ -25,10 +27,13 @@ func InitRouter() *gin.Engine {
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
 
-	gin.SetMode(setting.RunMode)
+	gin.SetMode(setting.AppSetting.RunMode)
+
+	r.StaticFS("/upload/images", http.Dir(upload.GetImageFullPath()))
 
 	r.GET("/" ,api.Hello)
 	r.GET("/auth", api.GetAuth)
+	r.POST("/upload", api.UploadImage)
 
 	url := ginSwagger.URL("http://127.0.0.1:9099/swagger/doc.json") // The url pointing to API definition
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, url))

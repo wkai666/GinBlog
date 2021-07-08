@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"ginApp/models"
+	"ginApp/pkg/logging"
 	"ginApp/pkg/setting"
 	"ginApp/routers"
 	"github.com/fvbock/endless"
@@ -11,10 +13,14 @@ import (
 
 func main() {
 
-	endless.DefaultReadTimeOut = setting.ReadTimeout
-	endless.DefaultWriteTimeOut = setting.WriteTimeout
+	setting.Setup()
+	models.Setup()
+	logging.Setup()
+
+	endless.DefaultReadTimeOut = setting.ServerSetting.ReadTimeOut
+	endless.DefaultWriteTimeOut = setting.ServerSetting.WriteTimeOut
 	endless.DefaultHammerTime = 1 << 20
-	endPoint := fmt.Sprintf(":%d", setting.HTTPPort)
+	endPoint := fmt.Sprintf(":%d", setting.ServerSetting.HttpPort)
 
 	server := endless.NewServer(endPoint, routers.InitRouter())
 	server.BeforeBegin = func (add string) {
@@ -25,19 +31,4 @@ func main() {
 	if err != nil {
 		log.Printf("Server error: %v", err)
 	}
-	// router := routers.InitRouter()
-	//router.GET("/test", func(c *gin.Context) {
-	//	c.JSON(200, gin.H{
-	//		"message": "test",
-	//	})
-	//})
-
-	//s := &http.Server{
-	//	Addr : fmt.Sprintf(":%d", setting.HTTPPort),
-	//	Handler: router,
-	//	ReadTimeout: setting.ReadTimeout,
-	//	WriteTimeout: setting.WriteTimeout,
-	//	MaxHeaderBytes: 1 << 20,
-	//}
-	//s.ListenAndServe()
 }
