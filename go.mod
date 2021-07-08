@@ -20,7 +20,7 @@ require (
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/mattn/go-isatty v0.0.13 // indirect
-	github.com/robfig/cron v1.2.0 // indirect
+	github.com/robfig/cron v1.2.0
 	github.com/shiena/ansicolor v0.0.0-20200904210342-c7312218db18 // indirect
 	github.com/smartystreets/goconvey v1.6.4 // indirect
 	github.com/swaggo/files v0.0.0-20190704085106-630677cd5c14

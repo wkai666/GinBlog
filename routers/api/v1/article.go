@@ -66,7 +66,7 @@ func GetArticles(c *gin.Context) {
 	if ! valid.HasErrors() {
 		code = e.SUCCESS
 
-		data["list"] = models.GetArticles(util.GetPage(c), setting.PageSize, maps)
+		data["list"] = models.GetArticles(util.GetPage(c), setting.AppSetting.PageSize, maps)
 		data["total"] = models.GetArticleTotal(maps)
 	} else {
 		for _, err := range valid.Errors {
@@ -84,6 +84,7 @@ func GetArticles(c *gin.Context) {
 func AddArticle(c *gin.Context) {
 	tagId := com.StrTo(c.Query("tag_id")).MustInt()
 	title := c.Query("title")
+	coverImageUrl := c.Query("cover_image_url")
 	desc := c.Query("desc")
 	content := c.Query("content")
 	createdBy := c.Query("created_by")
@@ -92,6 +93,8 @@ func AddArticle(c *gin.Context) {
 	valid := validation.Validation{}
 	valid.Min(tagId, 1, "tag_id").Message("标签 ID 必须大于 1")
 	valid.Required(title, "title").Message("标题不能为空")
+	valid.Required(coverImageUrl, "cover_image_url").Message("封面图片地址不能为空")
+	valid.MaxSize(coverImageUrl, 255, "cover_image_url").Message("封面图片链接最大长度为255")
 	valid.Required(desc, "desc").Message("描述不能为空")
 	valid.Required(content, "content").Message("内容不能为空")
 	valid.Required(createdBy, "created_by").Message("创建人不能为空")
@@ -103,6 +106,7 @@ func AddArticle(c *gin.Context) {
 			data := make(map[string]interface{})
 			data["tag_id"] = tagId
 			data["title"] = title
+			data["cover_image_url"] = coverImageUrl
 			data["desc"] = desc
 			data["content"] = content
 			data["created_by"] = createdBy
@@ -132,6 +136,7 @@ func EditArticle(c *gin.Context) {
 	id := com.StrTo(c.Query("id")).MustInt()
 	tagId := com.StrTo(c.Query("tag_id")).MustInt()
 	title := c.Query("title")
+	coverImageUrl := c.Query("cover_image_url")
 	desc := c.Query("desc")
 	content := c.Query("content")
 	modifiedBy := c.Query("modified_by")
@@ -144,6 +149,7 @@ func EditArticle(c *gin.Context) {
 
 	valid.Min(id, 1, "id").Message("ID 必须大于 0")
 	valid.MaxSize(title, 100, "title").Message("标题最大长度为 100")
+	valid.MaxSize(coverImageUrl, 255, "cover_image_url").Message("图片连接长度最大为255")
 	valid.MaxSize(desc,255, "desc").Message("简述最大长度为255")
 	valid.MaxSize(content, 65535, "content").Message("内容最大长度为 65535")
 	valid.Required(modifiedBy,  "modified_by").Message("修改人不能为空")
@@ -159,6 +165,9 @@ func EditArticle(c *gin.Context) {
 				}
 				if title != "" {
 					data["title"] = title
+				}
+				if coverImageUrl != "" {
+					data["cover_image_url"] = coverImageUrl
 				}
 				if desc != "" {
 					data["desc"] = desc
