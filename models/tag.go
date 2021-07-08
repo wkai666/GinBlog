@@ -55,3 +55,9 @@ func AddTag(name string, state int, createdBy string) bool {
 	})
 	return true
 }
+
+func CleanAllTag() bool {
+	db.Unscoped().Where("deleted_on != ? ", 0).Delete(&Tag{})
+
+	return true
+}
