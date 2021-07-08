@@ -27,6 +27,7 @@ func InitRouter() *gin.Engine {
 
 	gin.SetMode(setting.RunMode)
 
+	r.GET("/" ,api.Hello)
 	r.GET("/auth", api.GetAuth)
 
 	url := ginSwagger.URL("http://127.0.0.1:9099/swagger/doc.json") // The url pointing to API definition

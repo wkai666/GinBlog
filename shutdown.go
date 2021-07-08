@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-func main() {
+func shutdown() {
 	router := routers.InitRouter()
 
 	s := &http.Server{
