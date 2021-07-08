@@ -1,0 +1,7 @@
+FROM scratch
+
+WORKDIR $GOPATH/src/GinBlog
+COPY . $GOPATH/src/GinBlog
+
+EXPOSE 9099
+CMD ["./go-gin-blog"]
