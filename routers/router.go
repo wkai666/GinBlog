@@ -15,14 +15,6 @@ import (
 
 func InitRouter() *gin.Engine {
 
-	// programmatically set swagger info
-	// docs.SwaggerInfo.Title = "Swagger Example API"
-	// docs.SwaggerInfo.Description = "This is a sample server Petstore server."
-	// docs.SwaggerInfo.Version = "1.0"
-	// docs.SwaggerInfo.Host = "127.0.0.1:9099"
-	// docs.SwaggerInfo.BasePath = "/v2"
-	// docs.SwaggerInfo.Schemes = []string{"http", "https"}
-
 	r := gin.New()
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
