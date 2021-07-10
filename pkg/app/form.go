@@ -4,7 +4,6 @@ import (
 	"ginApp/pkg/e"
 	"github.com/astaxie/beego/validation"
 	"github.com/gin-gonic/gin"
-	"log"
 	"net/http"
 )
 
@@ -18,8 +17,6 @@ func BindAndValid(c *gin.Context, form interface{}) (int, int) {
 
 	valid := validation.Validation{}
 	check, err := valid.Valid(form)
-
-	log.Println("ssssssss--- ", form, err)
 
 	if err != nil {
 		return http.StatusInternalServerError, e.ERROR

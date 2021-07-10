@@ -60,13 +60,12 @@ func (a *Article) Get() (*models.Article, error) {
 	key := cache.GetArticleKey()
 	if gredis.Exists(key) {
 		 if data, err := gredis.Get(key); err != nil {
-		 	logging.Info(err)
+		 	 logging.Info(err)
 		 } else {
-			json.Unmarshal(data, &cacheArticle)
-			return cacheArticle, nil
+			 json.Unmarshal(data, &cacheArticle)
+			 return cacheArticle, nil
 		 }
 	}
-
 	article, err := models.GetArticle(a.ID)
 	if err != nil {
 		return nil, err
