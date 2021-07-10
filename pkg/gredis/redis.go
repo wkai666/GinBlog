@@ -65,7 +65,7 @@ func Exists(key string) bool {
 	conn := RedisConn.Get()
 	defer conn.Close()
 
-	exists, err := redis.Bool(conn.Do("EXIST", key))
+	exists, err := redis.Bool(conn.Do("EXISTS", key))
 	if err != nil {
 		return false
 	}
