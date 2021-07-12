@@ -1,9 +1,9 @@
 package v1
 
 import (
-	"ginApp/models"
 	"ginApp/pkg/app"
 	"ginApp/pkg/e"
+	"ginApp/pkg/export"
 	"ginApp/pkg/logging"
 	"ginApp/pkg/setting"
 	"ginApp/pkg/util"
@@ -59,44 +59,45 @@ func GetArticle(c *gin.Context) {
 }
 
 func GetArticles(c *gin.Context) {
-	data := make(map[string]interface{})
-	maps := make(map[string]interface{})
+	appG := app.Gin{C: c}
 
+	data := make(map[string]interface{})
 	valid := validation.Validation{}
 
 	var state = -1
 	if arg := c.Query("state"); arg != "" {
 		state = com.StrTo(arg).MustInt()
-		maps["state"] = state
-
 		valid.Range(state, 0, 1, "state").Message("状态只能为 0 或 1")
 	}
 
 	var tagId int = -1
 	if arg := c.Query("tag_id"); arg != "" {
 		tagId = com.StrTo(arg).MustInt()
-		maps["tag_id"] = tagId
-
 		valid.Min(tagId, 1, "tag_id").Message("标签 ID 必须大于 0")
 	}
 
-	code := e.INVALID_PARAMS
-	if ! valid.HasErrors() {
-		code = e.SUCCESS
+	articleService := article_service.Article{
+		State: state,
+		TagID: tagId,
 
-		data["list"] = models.GetArticles(util.GetPage(c), setting.AppSetting.PageSize, maps)
-		data["total"] = models.GetArticleTotal(maps)
-	} else {
-		for _, err := range valid.Errors {
-			logging.Info(err.Key, err.Message)
-		}
+		PageNum: util.GetPage(c),
+		PageSize: setting.AppSetting.PageSize,
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"code": code,
-		"msg": e.GetMsg(code),
-		"data": data,
-	})
+	articles, err := articleService.GetAll()
+	if err != nil {
+		appG.Response(http.StatusOK, e.ERROR_CHECK_EXIST_ARTICLE_FAIL, nil)
+		return
+	}
+
+	count, err := articleService.Count()
+	if err != nil {
+		appG.Response(http.StatusOK, e.ERROR_GET_ARTICLE_FAIL, nil)
+		return
+	}
+	data["list"] = articles
+	data["count"] = count
+	appG.Response(http.StatusOK, e.SUCCESS, data)
 }
 
 type AddArticleForm struct {
@@ -281,4 +282,51 @@ func DeleteArticle(c *gin.Context) {
 
 	appG.Response(http.StatusOK, e.SUCCESS, nil)
 
+}
+
+func ExportArticle(c *gin.Context)  {
+	appG := app.Gin{C: c}
+
+	id := com.StrTo(c.PostForm("id")).MustInt()
+	tagId := com.StrTo(c.PostForm("tag_id")).MustInt()
+
+	state := -1
+	if arg := c.PostForm("state"); arg != "" {
+		state = com.StrTo(c.PostForm("state")).MustInt()
+	}
+
+	articleService := article_service.Article{
+		ID: id,
+		TagID: tagId,
+		State: state,
+	}
+	fileName, err := articleService.Export()
+	if err != nil {
+		appG.Response(http.StatusOK, e.ERROR_EXPORT_ARTICLE_FAIL, nil)
+		return
+	}
+
+	appG.Response(http.StatusOK, e.SUCCESS, map[string]string{
+		"export_url": export.GetExcelFullPath() + fileName,
+		"export_save_url": export.GetExcelFullUrl(fileName),
+	})
+}
+
+func ImportArticle(c *gin.Context) {
+	appG := app.Gin{C: c}
+	file, _, err := c.Request.FormFile("file")
+	if err != nil {
+		logging.Warn(err)
+		appG.Response(http.StatusBadRequest, e.INVALID_PARAMS, nil)
+		return
+	}
+
+	articleService := article_service.Article{}
+	err = articleService.Import(file)
+	if err != nil {
+		appG.Response(http.StatusInternalServerError, e.ERROR_IMPORT_ARTICLE_FAIL, nil)
+		return
+	}
+
+	appG.Response(http.StatusOK,e.SUCCESS,nil)
 }

@@ -33,8 +33,8 @@ func ExistArticleById(id int) (bool, error) {
 	return false, nil
 }
 
-func GetArticleTotal(maps interface{}) (count int) {
-	db.Model(&Article{}).Where(maps).Count(&count)
+func GetArticleTotal(maps interface{}) (count int, err error) {
+	err = db.Model(&Article{}).Where(maps).Count(&count).Error
 
 	return
 }
@@ -56,10 +56,19 @@ func GetArticle(id int) (*Article, error) {
 	return &article, nil
 }
 
-func GetArticles(pageNum int, pageSize int, maps interface{}) (articles []Article) {
-	db.Preload("Tag").Where(maps).Offset(pageNum).Limit(pageSize).Find(&articles)
+func GetArticles(pageNum int, pageSize int, maps interface{}) (articles []Article, err error) {
 
-	return
+	if pageNum > 0 && pageSize > 0 {
+		err = db.Preload("Tag").Where(maps).Offset(pageNum).Limit(pageSize).Find(&articles).Error
+	} else {
+		err = db.Preload("Tag").Where(maps).Find(&articles).Error
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	return articles, nil
 }
 
 func EditArticle(id int, data interface{}) error {
