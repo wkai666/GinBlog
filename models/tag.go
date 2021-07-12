@@ -12,9 +12,18 @@ type Tag struct {
 }
 
 func GetTags(pageNum int, pageSize int, maps interface {}) (tags []Tag, err error) {
-	db.Where(maps).Offset(pageNum).Limit(pageSize).Find(&tags)
 
-	return
+	if pageSize > 0 && pageNum > 0 {
+		err = db.Where(maps).Offset(pageNum).Limit(pageSize).Find(&tags).Error
+	} else {
+		err = db.Where(maps).Find(&tags).Error
+	}
+
+	if err != nil && err != gorm.ErrRecordNotFound {
+		return nil, err
+	}
+
+	return tags, nil
 }
 
 // GetTagTotal count the total number of tags

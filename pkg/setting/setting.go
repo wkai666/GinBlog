@@ -15,11 +15,12 @@ type Server struct {
 type App struct {
 	RunMode string
 
+	PrefixUrl string
 	JwtSecret string
 	PageSize int
 	RuntimeRootPath string
+	ExportSavePath string
 
-	ImagePrefixUrl string
 	ImageSavePath string
 	ImageMaxSize int
 	ImageAllowExts []string
