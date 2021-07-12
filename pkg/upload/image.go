@@ -30,7 +30,7 @@ func GetImageName(name string) string {
 }
 
 func GetImageFullUrl(name string) string {
-	return setting.AppSetting.ImagePrefixUrl + "/" + GetImagePath() + name
+	return setting.AppSetting.PrefixUrl + "/" + GetImagePath() + name
 }
 
 func CheckImageExt(fileName string) bool {
