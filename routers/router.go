@@ -4,6 +4,7 @@ import (
 	_ "ginApp/docs"
 	"ginApp/middleware/jwt"
 	"ginApp/pkg/export"
+	"ginApp/pkg/qrcode"
 	"ginApp/pkg/setting"
 	"ginApp/pkg/upload"
 	"ginApp/routers/api"
@@ -24,6 +25,7 @@ func InitRouter() *gin.Engine {
 
 	r.StaticFS("/upload/images", http.Dir(upload.GetImageFullPath()))
 	r.StaticFS("/export", http.Dir(export.GetExcelFullPath()))
+	r.StaticFS("/qrcode", http.Dir(qrcode.GetQrCodeFullPath()))
 
 	r.GET("/" ,api.Hello)
 	r.GET("/auth", api.GetAuth)
@@ -62,7 +64,8 @@ func InitRouter() *gin.Engine {
 		r.POST("/articles/export", v1.ExportArticle)
 		// 导入文章
 		r.POST("/articles/import", v1.ImportArticle)
-
+		// 二维码生成
+		apiv1.POST("/articles/poster/generate", v1.GenerateArticlePoster)
 	}
 
 	return  r

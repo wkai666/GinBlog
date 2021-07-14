@@ -5,11 +5,13 @@ import (
 	"ginApp/pkg/e"
 	"ginApp/pkg/export"
 	"ginApp/pkg/logging"
+	"ginApp/pkg/qrcode"
 	"ginApp/pkg/setting"
 	"ginApp/pkg/util"
 	"ginApp/service/article_service"
 	"ginApp/service/tag_service"
 	"github.com/astaxie/beego/validation"
+	"github.com/boombuler/barcode/qr"
 	"github.com/gin-gonic/gin"
 	"github.com/unknwon/com"
 	"net/http"
@@ -329,4 +331,40 @@ func ImportArticle(c *gin.Context) {
 	}
 
 	appG.Response(http.StatusOK,e.SUCCESS,nil)
+}
+
+// 二维码信息
+const QRCODE_URL = "hshshshhsh"
+
+func GenerateArticlePoster(c *gin.Context)  {
+	appG := app.Gin{C: c}
+	article := &article_service.Article{}
+	qrc := qrcode.NewQrCode(QRCODE_URL, 300, 300, qr.M, qr.Auto)
+	posterName := article_service.GetPosterFlag() + "-" + qrcode.GetQrCodeFileName(qrc.URL) + qrc.GetCodeExt()
+	articlePoster := article_service.NewArticlePoster(posterName, article, qrc)
+	articlePosterBgService := article_service.NewArticlePosterBg(
+			"bg.jpg",
+			articlePoster,
+			&article_service.Rect{
+				X0: 0,
+				Y0: 0,
+				X1: 555,
+				Y1: 700,
+			},
+			&article_service.Pt{
+				X: 125,
+				Y: 298,
+			},
+		)
+
+	_, filePath, err := articlePosterBgService.Generate()
+	if err != nil {
+		appG.Response(http.StatusOK, e.ERROR_GEN_ARTICLE_POSTER_FAIL, nil)
+		return
+	}
+
+	appG.Response(http.StatusOK, e.SUCCESS, map[string]string{
+		"post_url": qrcode.GetQrCodeFullUrl(posterName),
+		"post_save_url": filePath + posterName,
+	})
 }
