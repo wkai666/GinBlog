@@ -21,6 +21,7 @@ var MsgFlags = map[int]string{
 	ERROR_IMPORT_TAG_FAIL: "导入标签失败",
 	ERROR_EXPORT_ARTICLE_FAIL: "导出文章失败",
 	ERROR_IMPORT_ARTICLE_FAIL: "导入文章失败",
+	ERROR_GEN_ARTICLE_POSTER_FAIL: "二维码生成失败",
 
 	ERROR_AUTH_CHECK_TOKEN_FAIL : "Token 鉴权失败",
 	ERROR_AUTH_CHECK_TOKEN_TIMEOUT : "Token 已超时",
