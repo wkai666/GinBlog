@@ -22,6 +22,7 @@ type App struct {
 	ExportSavePath string
 
 	QrCodeSavePath string
+	FontSavePath string
 
 	ImageSavePath string
 	ImageMaxSize int
